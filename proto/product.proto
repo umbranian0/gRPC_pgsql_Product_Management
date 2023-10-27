@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package proto;
+
+
+option go_package="example.com/go-grpc-product-management-system";
+
+
+message Product {
+    string id = 1;
+    string name = 2 ;
+    string category = 3;
+    string sub_category = 4;
+    string price = 5;
+    string created_date = 6;
+    string updated_date = 7;
+    string is_active = 8;
+    string created_by = 9;
+    string updated_by = 10 ;
+}
+
+
+message CreateProductRequest{
+    Product product = 1;
+}
+
+message CreateProductResponse{
+    Product product = 1;
+}
+
+message ReadProductRequest{
+    Product product = 1;
+}
+
+message ReadProductResponse{
+    Product product = 1;
+}
+message ReadProductsRequest{
+   
+}
+
+message ReadProductsResponse{
+    repeated Product product = 1 ;
+}
+
+message UpdateProductRequest{
+    Product product = 1;
+}
+message UpdateProductResponse{
+    Product product = 1;
+}
+
+message DeleteProductRequest{
+    string id = 1;
+}
+message DeleteProductResponse{
+    bool success = 1;
+}
+
+service ProductService{
+    rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse){}
+    rpc GetProduct (ReadProductRequest) returns (ReadProductResponse){}
+    rpc GetProducts (ReadProductsRequest) returns (ReadProductsResponse){}
+    rpc UpdateProduct ( UpdateProductRequest) returns (UpdateProductResponse){}
+    rpc DeleteProduct (DeleteProductRequest) returns (DeleteProductResponse){}
+}
