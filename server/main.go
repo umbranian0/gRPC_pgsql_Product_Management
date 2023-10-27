@@ -16,14 +16,43 @@ import (
 
 	pb "example.com/go-grpc-product-management-system/proto"
 )
+//main function to start server
+func main() {
+	fmt.Println("gRPC server running ...")
 
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
+
+	if err != nil {
+		log.Fatalf("Failed to listen: %v", err)
+	}
+
+	s := grpc.NewServer()
+
+	pb.RegisterProductServiceServer(s, &server{})
+
+	log.Printf("Server listening at %v", lis.Addr())
+
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("failed to serve : %v", err)
+	}
+}
+//defining ports for server
+var (
+	port = flag.Int("port", 50051, "gRPC server port")
+)
+//implement productService
+type server struct {
+	pb.UnimplementedProductServiceServer
+}
+
+//init DB connection
 func init() {
 	DatabaseConnection()
 }
 
 var DB *gorm.DB
 var err error
-
+//product structure
 type Product struct {
 	ID          string `gorm:"primarykey"`
 	Name        string
@@ -37,6 +66,8 @@ type Product struct {
 	UpdatedBy   string
 }
 
+//database connection data
+//improve with Secrets
 func DatabaseConnection() {
 	host := "localhost"
 	port := "5432"
@@ -58,14 +89,9 @@ func DatabaseConnection() {
 	fmt.Println("Database connection successful...")
 }
 
-var (
-	port = flag.Int("port", 50051, "gRPC server port")
-)
-
-type server struct {
-	pb.UnimplementedProductServiceServer
-}
-
+//Server function to CreateProduct
+// TO DO
+//transform CreatedAt and UpdatedAt from string to DATE.Time
 func (*server) CreateProduct(ctx context.Context, req *pb.CreateProductRequest) (*pb.CreateProductResponse, error) {
 	fmt.Println("Create Product")
 	product := req.GetProduct()
@@ -103,7 +129,9 @@ func (*server) CreateProduct(ctx context.Context, req *pb.CreateProductRequest) 
 		},
 	}, nil
 }
-
+//Server function to GetProduct
+// TO DO
+//transform CreatedAt and UpdatedAt from string to DATE.Time
 func (*server) GetProduct(ctx context.Context, req *pb.ReadProductRequest) (*pb.ReadProductResponse, error) {
 	fmt.Println("Read Product", req.Product.GetId())
 	var product Product
@@ -123,7 +151,8 @@ func (*server) GetProduct(ctx context.Context, req *pb.ReadProductRequest) (*pb.
 		},
 	}, nil
 }
-
+//Server function to GetProducts list, returns all products in DB
+// TO DO
 func (*server) GetProducts(ctx context.Context, req *pb.ReadProductsRequest) (*pb.ReadProductsResponse, error) {
 	fmt.Println("Read Products")
 	products := []*pb.Product{}
@@ -135,7 +164,9 @@ func (*server) GetProducts(ctx context.Context, req *pb.ReadProductsRequest) (*p
 		Product: products,
 	}, nil
 }
-
+//Server function to UpdateProduct
+// TO DO
+//transform CreatedAt and UpdatedAt from string to DATE.Time
 func (*server) UpdateProduct(ctx context.Context, req *pb.UpdateProductRequest) (*pb.UpdateProductResponse, error) {
 	fmt.Println("Update Product")
 	var product Product
@@ -159,7 +190,7 @@ func (*server) UpdateProduct(ctx context.Context, req *pb.UpdateProductRequest) 
 		},
 	}, nil
 }
-
+//Server function to DeleteProduct from DB
 func (*server) DeleteProduct(ctx context.Context, req *pb.DeleteProductRequest) (*pb.DeleteProductResponse, error) {
 	fmt.Println("Delete Product")
 	var Product Product
@@ -173,22 +204,3 @@ func (*server) DeleteProduct(ctx context.Context, req *pb.DeleteProductRequest) 
 	}, nil
 }
 
-func main() {
-	fmt.Println("gRPC server running ...")
-
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
-
-	if err != nil {
-		log.Fatalf("Failed to listen: %v", err)
-	}
-
-	s := grpc.NewServer()
-
-	pb.RegisterProductServiceServer(s, &server{})
-
-	log.Printf("Server listening at %v", lis.Addr())
-
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve : %v", err)
-	}
-}

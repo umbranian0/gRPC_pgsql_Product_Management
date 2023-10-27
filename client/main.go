@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+// define address for server connection
 var (
 	addr = flag.String("addr", "localhost:50051", "the address to connect to")
 )
@@ -28,6 +29,9 @@ type Product struct {
 	UpdatedBy   string `json:"updated_by"`
 }
 
+// main function that Start client Fizz
+// Defining all routers
+// This routers will be invoked by the real client, Postman , anything
 func main() {
 	flag.Parse()
 	conn, err := grpc.Dial(*addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
